@@ -45,7 +45,8 @@ export default function FloodReportCard({ report, index = 0 }: Props) {
               <div className="flex items-center gap-1.5 mb-2">
                 <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                 <h3 className="text-sm font-semibold text-slate-900 truncate group-hover:text-blue-700 transition-colors">
-                  {report.location}
+                  {report.road}
+                  <span className="text-xs font-normal text-slate-400 ml-1.5">{report.location}</span>
                 </h3>
               </div>
 

@@ -1,21 +1,23 @@
 'use client';
 
-/**
- * Simple client-side store for managing flood reports in the MVP.
- * This uses React context + state so it can easily be replaced
- * with a real backend later.
- */
-
 import { createContext, useContext } from 'react';
 import { FloodReport, FloodReportFormData } from '@/types/flood';
+import { EvacuationCenter } from '@/types/evacuation';
+import { FloodPrediction } from '@/types/prediction';
+import { SOSAlert, SOSStatus } from '@/types/sos';
 import { generateId } from './utils';
 
 export interface FloodStore {
   reports: FloodReport[];
+  evacuationCenters: EvacuationCenter[];
+  predictions: FloodPrediction[];
+  sosAlert: SOSAlert | null;
   addReport: (data: FloodReportFormData) => void;
   confirmReport: (id: string) => void;
   disputeReport: (id: string) => void;
   getReportById: (id: string) => FloodReport | undefined;
+  activateSOS: (lat: number, lng: number) => void;
+  cancelSOS: () => void;
 }
 
 export const FloodStoreContext = createContext<FloodStore | null>(null);
@@ -32,11 +34,26 @@ export function useFloodStore(): FloodStore {
  * Create a new FloodReport from form data.
  */
 export function createReportFromFormData(data: FloodReportFormData): FloodReport {
+  const lat = data.latitude;
+  const lng = data.longitude;
+
+  // Generate a simple road geometry line (short segment around the point)
+  const offset = 0.002;
+  const roadGeometry: [number, number][] = [
+    [lat, lng - offset],
+    [lat, lng - offset / 2],
+    [lat, lng],
+    [lat, lng + offset / 2],
+    [lat, lng + offset],
+  ];
+
   return {
     id: generateId(),
-    latitude: data.latitude,
-    longitude: data.longitude,
+    latitude: lat,
+    longitude: lng,
     location: data.location,
+    road: data.road || data.location,
+    roadGeometry,
     severity: data.severity,
     waterDepth: data.waterDepth,
     trend: data.trend,

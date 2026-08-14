@@ -97,7 +97,8 @@ export default function ReportDetailView({ reportId }: Props) {
           <div className="flex items-start gap-2 mt-4 mb-4">
             <MapPin className="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" />
             <div>
-              <h1 className="text-lg font-bold text-slate-900">{report.location}</h1>
+              <h1 className="text-lg font-bold text-slate-900">{report.road}</h1>
+              <p className="text-xs text-slate-500">{report.location}</p>
               <p className="text-xs text-slate-400">
                 {report.latitude.toFixed(4)}, {report.longitude.toFixed(4)}
               </p>

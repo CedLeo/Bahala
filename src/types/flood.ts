@@ -13,11 +13,18 @@ export type ReportStatus = 'active' | 'aging' | 'outdated';
 
 export type ReportFreshnessLevel = 'fresh' | 'aging' | 'outdated';
 
+/** A coordinate pair [latitude, longitude] */
+export type LatLng = [number, number];
+
 export interface FloodReport {
   id: string;
   latitude: number;
   longitude: number;
   location: string;
+  /** Road/street name for display */
+  road: string;
+  /** Polyline coordinates representing the affected road segment */
+  roadGeometry: LatLng[];
   severity: FloodSeverity;
   waterDepth: WaterDepth;
   trend: FloodTrend;
@@ -33,6 +40,7 @@ export interface FloodReportFormData {
   latitude: number;
   longitude: number;
   location: string;
+  road: string;
   severity: FloodSeverity;
   waterDepth: WaterDepth;
   trend: FloodTrend;

@@ -2,10 +2,11 @@
 
 import { useFloodStore } from '@/lib/store';
 import DynamicFloodMap from '@/components/map/DynamicFloodMap';
+import SOSButton from '@/components/sos/SOSButton';
 import { AlertTriangle, Droplets, TrendingUp, Users } from 'lucide-react';
 
 export default function HomePage() {
-  const { reports } = useFloodStore();
+  const { reports, evacuationCenters, predictions, sosAlert } = useFloodStore();
 
   const severeCount = reports.filter((r) => r.severity === 'severe').length;
   const activeCount = reports.length;
@@ -20,7 +21,7 @@ export default function HomePage() {
           <div className="flex items-center gap-1.5 text-slate-600 whitespace-nowrap">
             <Droplets className="w-4 h-4 text-blue-500" />
             <span className="font-semibold text-slate-900">{activeCount}</span>
-            <span>active reports</span>
+            <span>flooded roads</span>
           </div>
           <div className="flex items-center gap-1.5 text-slate-600 whitespace-nowrap">
             <AlertTriangle className="w-4 h-4 text-red-500" />
@@ -42,7 +43,15 @@ export default function HomePage() {
 
       {/* Full-screen Map */}
       <div className="flex-1 relative min-h-[calc(100vh-8rem)]">
-        <DynamicFloodMap reports={reports} showLegend={true} />
+        <DynamicFloodMap
+          reports={reports}
+          evacuationCenters={evacuationCenters}
+          predictions={predictions}
+          sosAlert={sosAlert}
+        />
+
+        {/* SOS Button - fixed bottom-right */}
+        <SOSButton />
       </div>
     </div>
   );

@@ -31,6 +31,7 @@ export default function FloodReportForm() {
 
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
   const [locationName, setLocationName] = useState('');
+  const [roadName, setRoadName] = useState('');
   const [severity, setSeverity] = useState<FloodSeverity | ''>('');
   const [waterDepth, setWaterDepth] = useState<WaterDepth | ''>('');
   const [trend, setTrend] = useState<FloodTrend | ''>('');
@@ -88,6 +89,7 @@ export default function FloodReportForm() {
       latitude: selectedPosition[0],
       longitude: selectedPosition[1],
       location: locationName || `${selectedPosition[0].toFixed(4)}, ${selectedPosition[1].toFixed(4)}`,
+      road: roadName || locationName || 'Unknown Road',
       severity: severity as FloodSeverity,
       waterDepth: waterDepth as WaterDepth,
       trend: trend as FloodTrend,
@@ -157,7 +159,17 @@ export default function FloodReportForm() {
               type="text"
               value={locationName}
               onChange={(e) => setLocationName(e.target.value)}
-              placeholder="e.g., Taft Avenue near LRT station"
+              placeholder="e.g., Near Ateneo Gate, Quezon City"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+            <label className="block text-sm font-medium text-slate-700 mb-1 mt-3">
+              Affected road/street
+            </label>
+            <input
+              type="text"
+              value={roadName}
+              onChange={(e) => setRoadName(e.target.value)}
+              placeholder="e.g., Katipunan Avenue"
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
             <p className="text-xs text-slate-400 mt-1">

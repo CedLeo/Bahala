@@ -3,7 +3,11 @@
 import { useState, useCallback, useMemo, ReactNode } from 'react';
 import { FloodStoreContext, createReportFromFormData } from '@/lib/store';
 import { FloodReport, FloodReportFormData } from '@/types/flood';
+import { SOSAlert } from '@/types/sos';
 import { mockReports } from '@/data/mockReports';
+import { mockEvacuationCenters } from '@/data/mockEvacuationCenters';
+import { mockPredictions } from '@/data/mockPredictions';
+import { generateId } from '@/lib/utils';
 
 interface Props {
   children: ReactNode;
@@ -11,6 +15,7 @@ interface Props {
 
 export default function FloodStoreProvider({ children }: Props) {
   const [reports, setReports] = useState<FloodReport[]>(mockReports);
+  const [sosAlert, setSOSAlert] = useState<SOSAlert | null>(null);
 
   const addReport = useCallback((data: FloodReportFormData) => {
     const newReport = createReportFromFormData(data);
@@ -42,9 +47,34 @@ export default function FloodStoreProvider({ children }: Props) {
     [reports]
   );
 
+  const activateSOS = useCallback((lat: number, lng: number) => {
+    setSOSAlert({
+      id: generateId(),
+      latitude: lat,
+      longitude: lng,
+      activatedAt: new Date().toISOString(),
+      status: 'active',
+    });
+  }, []);
+
+  const cancelSOS = useCallback(() => {
+    setSOSAlert(null);
+  }, []);
+
   const store = useMemo(
-    () => ({ reports, addReport, confirmReport, disputeReport, getReportById }),
-    [reports, addReport, confirmReport, disputeReport, getReportById]
+    () => ({
+      reports,
+      evacuationCenters: mockEvacuationCenters,
+      predictions: mockPredictions,
+      sosAlert,
+      addReport,
+      confirmReport,
+      disputeReport,
+      getReportById,
+      activateSOS,
+      cancelSOS,
+    }),
+    [reports, sosAlert, addReport, confirmReport, disputeReport, getReportById, activateSOS, cancelSOS]
   );
 
   return (

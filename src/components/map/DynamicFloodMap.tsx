@@ -2,11 +2,14 @@
 
 import dynamic from 'next/dynamic';
 import { FloodReport } from '@/types/flood';
+import { EvacuationCenter } from '@/types/evacuation';
+import { FloodPrediction } from '@/types/prediction';
+import { SOSAlert } from '@/types/sos';
 
 const FloodMap = dynamic(() => import('./FloodMap'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-slate-100 rounded-xl animate-pulse">
+    <div className="w-full flex items-center justify-center bg-slate-100 rounded-xl animate-pulse" style={{ minHeight: '500px' }}>
       <div className="text-center">
         <div className="w-12 h-12 mx-auto mb-3 bg-slate-200 rounded-full flex items-center justify-center">
           <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -21,10 +24,12 @@ const FloodMap = dynamic(() => import('./FloodMap'), {
 
 interface Props {
   reports: FloodReport[];
+  evacuationCenters: EvacuationCenter[];
+  predictions: FloodPrediction[];
+  sosAlert: SOSAlert | null;
   center?: [number, number];
   zoom?: number;
   className?: string;
-  showLegend?: boolean;
 }
 
 export default function DynamicFloodMap(props: Props) {

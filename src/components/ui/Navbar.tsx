@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Droplets, Map, FileText, BarChart3, Info, Menu, X, Plus } from 'lucide-react';
+import { Droplets, Map, FileText, BarChart3, Home, Info, Menu, X, Plus, AlertTriangle } from 'lucide-react';
 
 const navLinks = [
   { href: '/', label: 'Map', icon: Map },
   { href: '/reports', label: 'Reports', icon: FileText },
+  { href: '/evacuation', label: 'Evacuation', icon: Home },
   { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+  { href: '/sos', label: 'SOS', icon: AlertTriangle },
   { href: '/about', label: 'About', icon: Info },
 ];
 
@@ -36,12 +38,15 @@ export default function Navbar() {
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = pathname === link.href;
+              const isSOS = link.href === '/sos';
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
+                    isSOS
+                      ? 'text-red-600 hover:bg-red-50'
+                      : isActive
                       ? 'bg-blue-50 text-blue-700'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
@@ -82,13 +87,16 @@ export default function Navbar() {
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = pathname === link.href;
+              const isSOS = link.href === '/sos';
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
+                    isSOS
+                      ? 'text-red-600 hover:bg-red-50'
+                      : isActive
                       ? 'bg-blue-50 text-blue-700'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
