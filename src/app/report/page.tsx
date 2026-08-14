@@ -164,9 +164,22 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col-reverse lg:flex-row overflow-hidden">
-      {/* LEFT: Form panel */}
-      <div className="w-full lg:w-[38%] xl:w-[35%] overflow-y-auto border-t lg:border-t-0 lg:border-r border-slate-200 bg-white max-h-[60vh] lg:max-h-none">
+    <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      {/* MAP: Shows first on mobile (order-first), right side on desktop */}
+      <div className="w-full lg:flex-1 h-[50vh] lg:h-auto min-h-[300px] lg:min-h-0 lg:order-2">
+        <DynamicFloodReportMap
+          selectionState={selectionState}
+          pointA={pointA}
+          pointB={pointB}
+          roadGeometry={roadResult?.geometry ?? null}
+          severity={severity}
+          onMapClick={handleMapClick}
+          onReset={handleReset}
+        />
+      </div>
+
+      {/* FORM: Below map on mobile, left side on desktop */}
+      <div className="w-full lg:w-[38%] xl:w-[35%] overflow-y-auto border-t lg:border-t-0 lg:border-r border-slate-200 bg-white flex-1 lg:flex-none lg:order-1">
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 lg:p-6 space-y-5 lg:space-y-6">
           {/* Header */}
           <div>
@@ -301,18 +314,6 @@ export default function ReportPage() {
         </form>
       </div>
 
-      {/* RIGHT: Map panel (shows first on mobile due to flex-col-reverse) */}
-      <div className="flex-1 h-[45vh] lg:h-auto min-h-[280px] lg:min-h-[400px]">
-        <DynamicFloodReportMap
-          selectionState={selectionState}
-          pointA={pointA}
-          pointB={pointB}
-          roadGeometry={roadResult?.geometry ?? null}
-          severity={severity}
-          onMapClick={handleMapClick}
-          onReset={handleReset}
-        />
-      </div>
     </div>
   );
 }
