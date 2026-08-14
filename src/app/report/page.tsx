@@ -139,7 +139,7 @@ export default function ReportPage() {
     setIsSubmitting(false);
     setIsSubmitted(true);
 
-    setTimeout(() => router.push('/'), 1500);
+    setTimeout(() => router.push('/reports'), 1500);
   };
 
   // Success state
