@@ -37,15 +37,21 @@ export function createReportFromFormData(data: FloodReportFormData): FloodReport
   const lat = data.latitude;
   const lng = data.longitude;
 
-  // Generate a simple road geometry line (short segment around the point)
-  const offset = 0.002;
-  const roadGeometry: [number, number][] = [
-    [lat, lng - offset],
-    [lat, lng - offset / 2],
-    [lat, lng],
-    [lat, lng + offset / 2],
-    [lat, lng + offset],
-  ];
+  // Use pre-computed road geometry if available (from Point A → B selection),
+  // otherwise generate a simple segment around the point
+  let roadGeometry: [number, number][];
+  if (data.roadGeometry && data.roadGeometry.length >= 2) {
+    roadGeometry = data.roadGeometry;
+  } else {
+    const offset = 0.002;
+    roadGeometry = [
+      [lat, lng - offset],
+      [lat, lng - offset / 2],
+      [lat, lng],
+      [lat, lng + offset / 2],
+      [lat, lng + offset],
+    ];
+  }
 
   return {
     id: generateId(),

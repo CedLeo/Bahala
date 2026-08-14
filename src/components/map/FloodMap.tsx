@@ -98,8 +98,19 @@ export default function FloodMap({
 
       const config = SEVERITY_CONFIG[report.severity];
       const opacity = getFreshnessOpacity(report.reportedAt);
-      const weight = report.severity === 'severe' ? 8 : report.severity === 'moderate' ? 6 : 5;
+      const weight = report.severity === 'severe' ? 10 : report.severity === 'moderate' ? 8 : 7;
 
+      // Border/casing line (darker, wider) — makes it look like a road highlight
+      const casing = L.polyline(report.roadGeometry, {
+        color: '#1e293b',
+        weight: weight + 4,
+        opacity: opacity * 0.4,
+        lineCap: 'round',
+        lineJoin: 'round',
+      });
+      casing.addTo(layerGroup);
+
+      // Main colored line on top
       const polyline = L.polyline(report.roadGeometry, {
         color: config.markerColor,
         weight,

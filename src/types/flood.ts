@@ -41,6 +41,8 @@ export interface FloodReportFormData {
   longitude: number;
   location: string;
   road: string;
+  /** Optional pre-computed road geometry from Point A → B selection */
+  roadGeometry?: LatLng[];
   severity: FloodSeverity;
   waterDepth: WaterDepth;
   trend: FloodTrend;
