@@ -111,11 +111,13 @@ export default function FloodStoreProvider({ children }: Props) {
             if (imageUrl) {
               dbReport.image = imageUrl;
               // Update the image_url in supabase
-              const { supabase } = await import('@/lib/supabase');
-              await supabase
-                .from('flood_reports')
-                .update({ image_url: imageUrl })
-                .eq('id', dbReport.id);
+              const { supabase: sb } = await import('@/lib/supabase');
+              if (sb) {
+                await sb
+                  .from('flood_reports')
+                  .update({ image_url: imageUrl })
+                  .eq('id', dbReport.id);
+              }
             }
           }
           // Replace optimistic report with DB version

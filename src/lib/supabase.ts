@@ -1,9 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
- * Supabase client — uses the anon key for public access with RLS.
+ * Supabase client — only created if credentials are available.
+ * During static page generation (build time), env vars may not be present.
  */
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase: SupabaseClient | null =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null;

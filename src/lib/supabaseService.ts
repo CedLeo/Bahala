@@ -8,6 +8,8 @@ import { SOSAlert } from '@/types/sos';
 // =============================================================================
 
 export async function fetchFloodReports(): Promise<FloodReport[]> {
+  if (!supabase) return [];
+
   const { data, error } = await supabase
     .from('flood_reports')
     .select('*')
@@ -25,6 +27,8 @@ export async function insertFloodReport(
   formData: FloodReportFormData,
   roadGeometry: LatLng[]
 ): Promise<FloodReport | null> {
+  if (!supabase) return null;
+
   const { data, error } = await supabase
     .from('flood_reports')
     .insert([
@@ -56,7 +60,8 @@ export async function insertFloodReport(
 }
 
 export async function confirmFloodReport(id: string): Promise<boolean> {
-  // Fetch current value, then increment
+  if (!supabase) return false;
+
   const { data } = await supabase
     .from('flood_reports')
     .select('confirmations')
@@ -74,6 +79,8 @@ export async function confirmFloodReport(id: string): Promise<boolean> {
 }
 
 export async function disputeFloodReport(id: string): Promise<boolean> {
+  if (!supabase) return false;
+
   const { data } = await supabase
     .from('flood_reports')
     .select('disputes')
@@ -94,6 +101,8 @@ export async function uploadReportImage(
   file: File,
   reportId: string
 ): Promise<string | null> {
+  if (!supabase) return null;
+
   const fileExt = file.name.split('.').pop();
   const filePath = `flood-reports/${reportId}.${fileExt}`;
 
@@ -115,6 +124,8 @@ export async function uploadReportImage(
 // =============================================================================
 
 export async function fetchEvacuationCenters(): Promise<EvacuationCenter[]> {
+  if (!supabase) return [];
+
   const { data, error } = await supabase
     .from('evacuation_centers')
     .select('*')
@@ -136,6 +147,8 @@ export async function createSOSAlert(
   latitude: number,
   longitude: number
 ): Promise<SOSAlert | null> {
+  if (!supabase) return null;
+
   const { data, error } = await supabase
     .from('sos_alerts')
     .insert([{ latitude, longitude, status: 'active' }])
@@ -158,6 +171,8 @@ export async function createSOSAlert(
 }
 
 export async function cancelSOSAlert(id: string): Promise<boolean> {
+  if (!supabase) return false;
+
   const { error } = await supabase
     .from('sos_alerts')
     .update({ status: 'cancelled' })
@@ -171,7 +186,6 @@ export async function cancelSOSAlert(id: string): Promise<boolean> {
 
 function mapDbReportToFloodReport(row: any): FloodReport {
   let geometry = row.road_geometry || [];
-  // Handle case where road_geometry is stored as JSON string
   if (typeof geometry === 'string') {
     try { geometry = JSON.parse(geometry); } catch { geometry = []; }
   }
