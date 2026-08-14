@@ -10,106 +10,30 @@
   --color-flood-dark: #1e293b;
 }
 
-/* ===== PWA & Mobile-First Foundations ===== */
-
-/* Prevent overscroll bounce on mobile */
-html, body {
-  overscroll-behavior: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Safe area insets for notched devices (iPhone X+, etc.) */
-body {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Make sure content doesn't hide behind the status bar in standalone mode */
-@media all and (display-mode: standalone) {
-  body {
-    padding-top: env(safe-area-inset-top);
-  }
-}
-
-/* Touch-friendly tap targets — ensure minimum 44x44px */
-button, a, [role="button"] {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-/* Except for inline links in paragraphs */
-p a, span a, li a {
-  min-height: unset;
-  min-width: unset;
-}
-
-/* Prevent text size adjustment on orientation change */
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-/* ===== Leaflet ===== */
-
 /* Leaflet container must have explicit height */
 .leaflet-container {
   width: 100%;
   height: 100%;
   z-index: 1;
-  touch-action: pan-x pan-y;
 }
 
-/* ===== Responsive Utilities ===== */
-
-/* Hide scrollbar but keep scrollable on mobile */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Custom scrollbar for desktop */
-@media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #f1f5f9;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #94a3b8;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #64748b;
-  }
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
 }
 
-/* On mobile, use thin scrollbar */
-@media (max-width: 767px) {
-  ::-webkit-scrollbar {
-    width: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 2px;
-  }
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 3px;
 }
 
-/* ===== Animations ===== */
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
 
 /* Pulse animation for active severe markers */
 @keyframes pulse-severe {
@@ -127,21 +51,7 @@ html {
   animation: pulse-severe 2s infinite;
 }
 
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  .marker-pulse-severe {
-    animation: none;
-  }
-
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ===== Custom marker styles ===== */
-
+/* Custom marker styles */
 .flood-marker {
   border-radius: 50%;
   border: 3px solid white;
@@ -151,69 +61,4 @@ html {
 
 .flood-marker:hover {
   transform: scale(1.2);
-}
-
-/* ===== PWA Install Banner (optional UI) ===== */
-
-.pwa-install-banner {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  padding: 1rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-}
-
-/* ===== Bottom Navigation for Mobile ===== */
-
-@media (max-width: 767px) {
-  .mobile-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
-
-/* ===== Responsive Typography ===== */
-
-/* Fluid type scale */
-h1 {
-  font-size: clamp(1.25rem, 2.5vw + 0.5rem, 2rem);
-}
-
-h2 {
-  font-size: clamp(1.1rem, 2vw + 0.4rem, 1.5rem);
-}
-
-/* Prevent long words from breaking layout on mobile */
-.break-words {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-/* ===== Offline Indicator ===== */
-
-.offline-indicator {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10000;
-  text-align: center;
-  padding: 0.5rem;
-  background: #f59e0b;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  transform: translateY(-100%);
-  transition: transform 0.3s ease;
-}
-
-.offline-indicator.visible {
-  transform: translateY(0);
 }
