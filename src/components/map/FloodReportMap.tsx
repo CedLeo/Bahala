@@ -116,13 +116,30 @@ export default function FloodReportMap({
       polylineRef.current.remove();
       polylineRef.current = null;
     }
+    // Also remove casing if it exists
+    if ((mapInstanceRef.current as any)._casingLine) {
+      (mapInstanceRef.current as any)._casingLine.remove();
+      (mapInstanceRef.current as any)._casingLine = null;
+    }
 
     if (roadGeometry && roadGeometry.length >= 2) {
       const color = severity ? SEVERITY_CONFIG[severity].markerColor : '#3b82f6';
+
+      // Border/casing line — makes it look like a real road highlight
+      const casing = L.polyline(roadGeometry, {
+        color: '#1e293b',
+        weight: 14,
+        opacity: 0.35,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(mapInstanceRef.current);
+      (mapInstanceRef.current as any)._casingLine = casing;
+
+      // Main colored road line on top
       polylineRef.current = L.polyline(roadGeometry, {
         color,
-        weight: 8,
-        opacity: 0.85,
+        weight: 10,
+        opacity: 0.9,
         lineCap: 'round',
         lineJoin: 'round',
       }).addTo(mapInstanceRef.current);
