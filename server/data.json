@@ -1,0 +1,224 @@
+{
+  "reports": [
+    {
+      "id": "A2HLGaycks",
+      "start": {
+        "lat": 14.686391304134709,
+        "lng": 121.0243606567383
+      },
+      "end": {
+        "lat": 14.683504242168238,
+        "lng": 121.0218930244446
+      },
+      "lengthMeters": 416.54364348292427,
+      "streetName": "",
+      "severity": "knee",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:26:55.156Z",
+      "updatedAt": "2026-08-14T11:26:55.156Z"
+    },
+    {
+      "id": "GS63x0OTJh",
+      "start": {
+        "lat": 14.688049817012894,
+        "lng": 121.02837324142457
+      },
+      "end": {
+        "lat": 14.690637742176966,
+        "lng": 121.02251529693605
+      },
+      "lengthMeters": 692.6856712288475,
+      "streetName": "",
+      "severity": "knee",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:27:05.785Z",
+      "updatedAt": "2026-08-14T11:27:05.785Z"
+    },
+    {
+      "id": "mEGg80Q_2y",
+      "start": {
+        "lat": 14.68980695302494,
+        "lng": 121.02423191070557
+      },
+      "end": {
+        "lat": 14.689848492557541,
+        "lng": 121.02433919906618
+      },
+      "lengthMeters": 12.430037394875555,
+      "streetName": "",
+      "severity": "ankle",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:27:17.039Z",
+      "updatedAt": "2026-08-14T11:27:17.039Z"
+    },
+    {
+      "id": "uacvt4Kniy",
+      "start": {
+        "lat": 14.690616972486662,
+        "lng": 121.02254748344423
+      },
+      "end": {
+        "lat": 14.690648127021387,
+        "lng": 121.02249383926393
+      },
+      "lengthMeters": 6.730031138768288,
+      "streetName": "",
+      "severity": "ankle",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:27:20.048Z",
+      "updatedAt": "2026-08-14T11:27:20.048Z"
+    },
+    {
+      "id": "Q82XkAYWK5",
+      "start": {
+        "lat": 14.687968820803134,
+        "lng": 121.0284161567688
+      },
+      "end": {
+        "lat": 14.688062285526394,
+        "lng": 121.02838397026063
+      },
+      "lengthMeters": 10.954265211068028,
+      "streetName": "",
+      "severity": "ankle",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:27:23.982Z",
+      "updatedAt": "2026-08-14T11:27:23.982Z"
+    },
+    {
+      "id": "Y0sphOgPBH",
+      "start": {
+        "lat": 14.689080009926311,
+        "lng": 121.02109909057619
+      },
+      "end": {
+        "lat": 14.688519223598247,
+        "lng": 121.02325558662416
+      },
+      "lengthMeters": 240.18989948338248,
+      "streetName": "",
+      "severity": "ankle",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:27:25.984Z",
+      "updatedAt": "2026-08-14T11:27:25.984Z"
+    },
+    {
+      "id": "jtno8IwZzF",
+      "start": {
+        "lat": 14.690835054136484,
+        "lng": 121.0191571712494
+      },
+      "end": {
+        "lat": 14.6883530644099,
+        "lng": 121.01952195167543
+      },
+      "lengthMeters": 278.75974140403457,
+      "streetName": "",
+      "severity": "impassable",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:27:31.218Z",
+      "updatedAt": "2026-08-14T11:27:31.218Z"
+    },
+    {
+      "id": "fiXHz6cCw7",
+      "start": {
+        "lat": 14.690824669300945,
+        "lng": 121.01914644241334
+      },
+      "end": {
+        "lat": 14.68830113963765,
+        "lng": 121.01951122283937
+      },
+      "lengthMeters": 283.33353547594425,
+      "streetName": "",
+      "severity": "ankle",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:27:35.359Z",
+      "updatedAt": "2026-08-14T11:27:35.359Z"
+    },
+    {
+      "id": "hiUS09A80f",
+      "start": {
+        "lat": 14.687449618812934,
+        "lng": 121.01680755615236
+      },
+      "end": {
+        "lat": 14.691290469288555,
+        "lng": 121.01118564605714
+      },
+      "lengthMeters": 740.3084240532154,
+      "streetName": "",
+      "severity": "ankle",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:29:10.405Z",
+      "updatedAt": "2026-08-14T11:29:10.405Z"
+    },
+    {
+      "id": "i8fITDvjUf",
+      "start": {
+        "lat": 14.691650619552066,
+        "lng": 121.00890040397645
+      },
+      "end": {
+        "lat": 14.690580982891742,
+        "lng": 121.00881993770601
+      },
+      "lengthMeters": 119.252656041779,
+      "streetName": "",
+      "severity": "ankle",
+      "description": "",
+      "reporterName": "Anonymous",
+      "confirmCount": 0,
+      "disputeCount": 0,
+      "authorityAlerted": false,
+      "status": "active",
+      "createdAt": "2026-08-14T11:29:25.587Z",
+      "updatedAt": "2026-08-14T11:29:25.587Z"
+    }
+  ]
+}
