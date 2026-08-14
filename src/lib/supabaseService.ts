@@ -7,9 +7,6 @@ import { SOSAlert } from '@/types/sos';
 // FLOOD REPORTS
 // =============================================================================
 
-/**
- * Fetch all active flood reports from Supabase.
- */
 export async function fetchFloodReports(): Promise<FloodReport[]> {
   const { data, error } = await supabase
     .from('flood_reports')
@@ -24,30 +21,29 @@ export async function fetchFloodReports(): Promise<FloodReport[]> {
   return (data || []).map(mapDbReportToFloodReport);
 }
 
-/**
- * Insert a new flood report into Supabase.
- */
 export async function insertFloodReport(
   formData: FloodReportFormData,
   roadGeometry: LatLng[]
 ): Promise<FloodReport | null> {
   const { data, error } = await supabase
     .from('flood_reports')
-    .insert({
-      latitude: formData.latitude,
-      longitude: formData.longitude,
-      location: formData.location,
-      road: formData.road,
-      road_geometry: roadGeometry as any,
-      severity: formData.severity,
-      water_depth: formData.waterDepth,
-      trend: formData.trend,
-      description: formData.description || '',
-      image_url: null, // Image upload handled separately via Supabase Storage
-      confirmations: 1,
-      disputes: 0,
-      status: 'active',
-    })
+    .insert([
+      {
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        location: formData.location,
+        road: formData.road,
+        road_geometry: JSON.stringify(roadGeometry),
+        severity: formData.severity,
+        water_depth: formData.waterDepth,
+        trend: formData.trend,
+        description: formData.description || '',
+        image_url: null,
+        confirmations: 1,
+        disputes: 0,
+        status: 'active',
+      },
+    ])
     .select()
     .single();
 
@@ -59,34 +55,24 @@ export async function insertFloodReport(
   return mapDbReportToFloodReport(data);
 }
 
-/**
- * Increment confirmations for a report.
- */
 export async function confirmFloodReport(id: string): Promise<boolean> {
-  const { error } = await supabase.rpc('increment_confirmations', { report_id: id });
+  // Fetch current value, then increment
+  const { data } = await supabase
+    .from('flood_reports')
+    .select('confirmations')
+    .eq('id', id)
+    .single();
 
-  // Fallback if RPC doesn't exist: fetch current value and update
-  if (error) {
-    const { data } = await supabase
+  if (data) {
+    const { error } = await supabase
       .from('flood_reports')
-      .select('confirmations')
-      .eq('id', id)
-      .single();
-
-    if (data) {
-      await supabase
-        .from('flood_reports')
-        .update({ confirmations: data.confirmations + 1 })
-        .eq('id', id);
-    }
+      .update({ confirmations: (data as any).confirmations + 1 })
+      .eq('id', id);
+    return !error;
   }
-
-  return !error;
+  return false;
 }
 
-/**
- * Increment disputes for a report.
- */
 export async function disputeFloodReport(id: string): Promise<boolean> {
   const { data } = await supabase
     .from('flood_reports')
@@ -95,20 +81,15 @@ export async function disputeFloodReport(id: string): Promise<boolean> {
     .single();
 
   if (data) {
-    await supabase
+    const { error } = await supabase
       .from('flood_reports')
-      .update({ disputes: data.disputes + 1 })
+      .update({ disputes: (data as any).disputes + 1 })
       .eq('id', id);
-    return true;
+    return !error;
   }
-
   return false;
 }
 
-/**
- * Upload a flood report image to Supabase Storage.
- * Returns the public URL of the uploaded image.
- */
 export async function uploadReportImage(
   file: File,
   reportId: string
@@ -133,9 +114,6 @@ export async function uploadReportImage(
 // EVACUATION CENTERS
 // =============================================================================
 
-/**
- * Fetch all evacuation centers.
- */
 export async function fetchEvacuationCenters(): Promise<EvacuationCenter[]> {
   const { data, error } = await supabase
     .from('evacuation_centers')
@@ -154,20 +132,13 @@ export async function fetchEvacuationCenters(): Promise<EvacuationCenter[]> {
 // SOS ALERTS
 // =============================================================================
 
-/**
- * Create an SOS alert.
- */
 export async function createSOSAlert(
   latitude: number,
   longitude: number
 ): Promise<SOSAlert | null> {
   const { data, error } = await supabase
     .from('sos_alerts')
-    .insert({
-      latitude,
-      longitude,
-      status: 'active',
-    })
+    .insert([{ latitude, longitude, status: 'active' }])
     .select()
     .single();
 
@@ -176,45 +147,48 @@ export async function createSOSAlert(
     return null;
   }
 
+  const row = data as any;
   return {
-    id: data.id,
-    latitude: data.latitude,
-    longitude: data.longitude,
-    activatedAt: data.activated_at,
-    status: data.status as SOSAlert['status'],
+    id: row.id,
+    latitude: row.latitude,
+    longitude: row.longitude,
+    activatedAt: row.activated_at || row.created_at,
+    status: row.status,
   };
 }
 
-/**
- * Cancel an active SOS alert.
- */
 export async function cancelSOSAlert(id: string): Promise<boolean> {
   const { error } = await supabase
     .from('sos_alerts')
     .update({ status: 'cancelled' })
     .eq('id', id);
-
   return !error;
 }
 
 // =============================================================================
-// MAPPERS (DB row → App type)
+// MAPPERS
 // =============================================================================
 
 function mapDbReportToFloodReport(row: any): FloodReport {
+  let geometry = row.road_geometry || [];
+  // Handle case where road_geometry is stored as JSON string
+  if (typeof geometry === 'string') {
+    try { geometry = JSON.parse(geometry); } catch { geometry = []; }
+  }
+
   return {
     id: row.id,
     latitude: row.latitude,
     longitude: row.longitude,
     location: row.location,
     road: row.road,
-    roadGeometry: row.road_geometry || [],
+    roadGeometry: geometry,
     severity: row.severity,
     waterDepth: row.water_depth,
     trend: row.trend,
     description: row.description || '',
     image: row.image_url || undefined,
-    reportedAt: row.reported_at,
+    reportedAt: row.reported_at || row.created_at,
     confirmations: row.confirmations || 0,
     disputes: row.disputes || 0,
     status: row.status || 'active',
