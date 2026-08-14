@@ -9,7 +9,7 @@ export default function MapLegend() {
   ][];
 
   return (
-    <div className="absolute bottom-6 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200 p-3">
+    <div className="absolute bottom-4 sm:bottom-6 left-3 sm:left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200 p-2.5 sm:p-3">
       <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-2">
         Road Conditions
       </span>

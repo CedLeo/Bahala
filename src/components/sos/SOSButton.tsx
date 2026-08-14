@@ -69,7 +69,7 @@ export default function SOSButton() {
   return (
     <>
       {/* SOS Hold Button */}
-      <div className="absolute bottom-6 right-6 z-[1000]">
+      <div className="absolute bottom-20 sm:bottom-6 right-4 sm:right-6 z-[1000]">
         <button
           onMouseDown={startHold}
           onMouseUp={cancelHold}

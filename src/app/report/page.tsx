@@ -164,10 +164,10 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+    <div className="flex-1 flex flex-col-reverse lg:flex-row overflow-hidden">
       {/* LEFT: Form panel */}
-      <div className="w-full lg:w-[38%] xl:w-[35%] overflow-y-auto border-r border-slate-200 bg-white">
-        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-6">
+      <div className="w-full lg:w-[38%] xl:w-[35%] overflow-y-auto border-t lg:border-t-0 lg:border-r border-slate-200 bg-white max-h-[60vh] lg:max-h-none">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-5 lg:p-6 space-y-5 lg:space-y-6">
           {/* Header */}
           <div>
             <h1 className="text-xl font-bold text-slate-900">Report Flooding</h1>
@@ -301,8 +301,8 @@ export default function ReportPage() {
         </form>
       </div>
 
-      {/* RIGHT: Map panel */}
-      <div className="flex-1 h-[50vh] lg:h-auto min-h-[400px]">
+      {/* RIGHT: Map panel (shows first on mobile due to flex-col-reverse) */}
+      <div className="flex-1 h-[45vh] lg:h-auto min-h-[280px] lg:min-h-[400px]">
         <DynamicFloodReportMap
           selectionState={selectionState}
           pointA={pointA}

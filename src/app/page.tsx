@@ -16,8 +16,8 @@ export default function HomePage() {
   return (
     <div className="flex-1 flex flex-col relative">
       {/* Quick Stats Bar */}
-      <div className="bg-white border-b border-slate-200 px-4 py-2.5">
-        <div className="max-w-7xl mx-auto flex items-center gap-4 sm:gap-6 overflow-x-auto text-sm">
+      <div className="bg-white border-b border-slate-200 px-3 sm:px-4 py-2">
+        <div className="max-w-7xl mx-auto flex items-center gap-3 sm:gap-6 overflow-x-auto text-xs sm:text-sm scrollbar-none">
           <div className="flex items-center gap-1.5 text-slate-600 whitespace-nowrap">
             <Droplets className="w-4 h-4 text-blue-500" />
             <span className="font-semibold text-slate-900">{activeCount}</span>
@@ -42,7 +42,7 @@ export default function HomePage() {
       </div>
 
       {/* Full-screen Map */}
-      <div className="flex-1 relative min-h-[calc(100vh-8rem)]">
+      <div className="flex-1 relative min-h-[60vh] sm:min-h-[calc(100vh-8rem)]">
         <DynamicFloodMap
           reports={reports}
           evacuationCenters={evacuationCenters}
