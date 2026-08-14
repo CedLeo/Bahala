@@ -73,11 +73,12 @@ export default function ReportDetailView({ reportId }: Props) {
       >
         {/* Hero/Image area */}
         {report.image && (
-          <div className="w-full h-48 sm:h-64 rounded-xl overflow-hidden mb-6 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-            <div className="text-center">
-              <span className="text-5xl">🌊</span>
-              <p className="text-sm text-blue-600 mt-2 font-medium">Flood photo</p>
-            </div>
+          <div className="w-full h-48 sm:h-64 rounded-xl overflow-hidden mb-6 bg-slate-100">
+            <img
+              src={report.image}
+              alt={`Flood at ${report.road}`}
+              className="w-full h-full object-cover"
+            />
           </div>
         )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef, ReactNode } from 'react';
 import { FloodStoreContext, createReportFromFormData } from '@/lib/store';
 import { FloodReport, FloodReportFormData } from '@/types/flood';
 import { EvacuationCenter } from '@/types/evacuation';
@@ -24,90 +24,112 @@ interface Props {
   children: ReactNode;
 }
 
-/**
- * Check if Supabase is configured (env vars are set to real values).
- */
+const STORAGE_KEY = 'bahala_reports';
+
 function isSupabaseConfigured(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  return !!(
-    url &&
-    key &&
-    url !== 'your-supabase-url-here' &&
-    key !== 'your-supabase-anon-key-here'
-  );
+  return !!(url && key && !url.includes('your-supabase'));
+}
+
+/**
+ * Load reports from localStorage (fallback persistence).
+ */
+function loadLocalReports(): FloodReport[] | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  return null;
+}
+
+/**
+ * Save reports to localStorage.
+ */
+function saveLocalReports(reports: FloodReport[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+  } catch {}
 }
 
 export default function FloodStoreProvider({ children }: Props) {
   const [reports, setReports] = useState<FloodReport[]>(mockReports);
   const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenter[]>(mockEvacuationCenters);
   const [sosAlert, setSOSAlert] = useState<SOSAlert | null>(null);
-  const [isDbConnected, setIsDbConnected] = useState(false);
+  const initialized = useRef(false);
 
-  // Load data from Supabase on mount (if configured)
+  // On mount: load from localStorage first (instant), then try Supabase
   useEffect(() => {
-    if (!isSupabaseConfigured()) return;
+    if (initialized.current) return;
+    initialized.current = true;
 
-    async function loadFromSupabase() {
-      try {
-        const [dbReports, dbEvacCenters] = await Promise.all([
-          fetchFloodReports(),
-          fetchEvacuationCenters(),
-        ]);
-
-        if (dbReports.length > 0) {
-          setReports(dbReports);
-        }
-        if (dbEvacCenters.length > 0) {
-          setEvacuationCenters(dbEvacCenters);
-        }
-
-        setIsDbConnected(true);
-      } catch (err) {
-        console.warn('Supabase not available, using mock data:', err);
-      }
+    // 1. Load from localStorage for instant display
+    const localReports = loadLocalReports();
+    if (localReports && localReports.length > 0) {
+      setReports(localReports);
     }
 
-    loadFromSupabase();
+    // 2. If Supabase is configured, fetch from DB (overrides local)
+    if (isSupabaseConfigured()) {
+      fetchFloodReports().then((dbReports) => {
+        if (dbReports.length > 0) {
+          setReports(dbReports);
+          saveLocalReports(dbReports);
+        }
+      }).catch(() => {});
+
+      fetchEvacuationCenters().then((dbCenters) => {
+        if (dbCenters.length > 0) {
+          setEvacuationCenters(dbCenters);
+        }
+      }).catch(() => {});
+    }
   }, []);
 
-  const addReport = useCallback(
-    async (data: FloodReportFormData) => {
-      // Create local report immediately (optimistic update)
-      const newReport = createReportFromFormData(data);
-      setReports((prev) => [newReport, ...prev]);
+  // Save to localStorage whenever reports change
+  useEffect(() => {
+    if (initialized.current) {
+      saveLocalReports(reports);
+    }
+  }, [reports]);
 
-      // Persist to Supabase if connected
-      if (isSupabaseConfigured()) {
-        try {
-          const geometry = data.roadGeometry || newReport.roadGeometry;
-          const dbReport = await insertFloodReport(data, geometry);
+  const addReport = useCallback((data: FloodReportFormData) => {
+    // Create report and add to state immediately (synchronous)
+    const newReport = createReportFromFormData(data);
+    setReports((prev) => [newReport, ...prev]);
 
-          if (dbReport) {
-            // Upload image if provided
-            if (data.image) {
-              const imageUrl = await uploadReportImage(data.image, dbReport.id);
-              if (imageUrl) {
-                dbReport.image = imageUrl;
-              }
+    // Persist to Supabase in the background (non-blocking)
+    if (isSupabaseConfigured()) {
+      const geometry = data.roadGeometry || newReport.roadGeometry;
+      insertFloodReport(data, geometry).then(async (dbReport) => {
+        if (dbReport) {
+          // Upload image if provided
+          if (data.image) {
+            const imageUrl = await uploadReportImage(data.image, dbReport.id);
+            if (imageUrl) {
+              dbReport.image = imageUrl;
+              // Update the image_url in supabase
+              const { supabase } = await import('@/lib/supabase');
+              await supabase
+                .from('flood_reports')
+                .update({ image_url: imageUrl })
+                .eq('id', dbReport.id);
             }
-
-            // Replace optimistic report with DB version (has real UUID)
-            setReports((prev) =>
-              prev.map((r) => (r.id === newReport.id ? dbReport : r))
-            );
           }
-        } catch (err) {
-          console.warn('Failed to persist report to Supabase:', err);
-          // Optimistic report remains in local state
+          // Replace optimistic report with DB version
+          setReports((prev) =>
+            prev.map((r) => (r.id === newReport.id ? dbReport : r))
+          );
         }
-      }
-    },
-    []
-  );
+      }).catch((err) => {
+        console.warn('Failed to persist report:', err);
+      });
+    }
+  }, []);
 
   const confirmReport = useCallback((id: string) => {
-    // Optimistic update
     setReports((prev) =>
       prev.map((report) =>
         report.id === id
@@ -115,17 +137,12 @@ export default function FloodStoreProvider({ children }: Props) {
           : report
       )
     );
-
-    // Persist to DB
     if (isSupabaseConfigured()) {
-      confirmReportDb(id).catch((err) =>
-        console.warn('Failed to confirm report in DB:', err)
-      );
+      confirmReportDb(id).catch(() => {});
     }
   }, []);
 
   const disputeReport = useCallback((id: string) => {
-    // Optimistic update
     setReports((prev) =>
       prev.map((report) =>
         report.id === id
@@ -133,12 +150,8 @@ export default function FloodStoreProvider({ children }: Props) {
           : report
       )
     );
-
-    // Persist to DB
     if (isSupabaseConfigured()) {
-      disputeReportDb(id).catch((err) =>
-        console.warn('Failed to dispute report in DB:', err)
-      );
+      disputeReportDb(id).catch(() => {});
     }
   }, []);
 
@@ -147,7 +160,7 @@ export default function FloodStoreProvider({ children }: Props) {
     [reports]
   );
 
-  const activateSOS = useCallback(async (lat: number, lng: number) => {
+  const activateSOS = useCallback((lat: number, lng: number) => {
     const localAlert: SOSAlert = {
       id: generateId(),
       latitude: lat,
@@ -158,22 +171,15 @@ export default function FloodStoreProvider({ children }: Props) {
     setSOSAlert(localAlert);
 
     if (isSupabaseConfigured()) {
-      try {
-        const dbAlert = await createSOSAlert(lat, lng);
-        if (dbAlert) {
-          setSOSAlert(dbAlert);
-        }
-      } catch (err) {
-        console.warn('Failed to create SOS in DB:', err);
-      }
+      createSOSAlert(lat, lng).then((dbAlert) => {
+        if (dbAlert) setSOSAlert(dbAlert);
+      }).catch(() => {});
     }
   }, []);
 
   const cancelSOS = useCallback(() => {
     if (sosAlert && isSupabaseConfigured()) {
-      cancelSOSAlert(sosAlert.id).catch((err) =>
-        console.warn('Failed to cancel SOS in DB:', err)
-      );
+      cancelSOSAlert(sosAlert.id).catch(() => {});
     }
     setSOSAlert(null);
   }, [sosAlert]);

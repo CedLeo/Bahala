@@ -26,10 +26,12 @@ export default function FloodReportCard({ report, index = 0 }: Props) {
           <div className="flex gap-4">
             {/* Image thumbnail */}
             {report.image && (
-              <div className="hidden sm:block w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
-                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                  <span className="text-2xl">🌊</span>
-                </div>
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
+                <img
+                  src={report.image}
+                  alt={`Flood at ${report.road}`}
+                  className="w-full h-full object-cover"
+                />
               </div>
             )}
 
