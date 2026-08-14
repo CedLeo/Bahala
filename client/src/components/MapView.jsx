@@ -38,6 +38,7 @@ export default function MapView({
   reports,
   draftStart,
   draftEnd,
+  draftPath,
   onMapClick,
   onConfirm,
   onDispute,
@@ -80,7 +81,11 @@ export default function MapView({
       {draftStart && draftEnd && (
         <>
           <Polyline
-            positions={[draftStart, draftEnd]}
+            positions={
+              draftPath && draftPath.length > 0
+                ? draftPath
+                : [draftStart, draftEnd]
+            }
             pathOptions={{
               color: "#3b82f6",
               weight: 6,
@@ -102,22 +107,29 @@ export default function MapView({
 
       {reports.map((report) => {
         const severity = SEVERITY[report.severity] || SEVERITY.ankle;
-        const startPos = [report.start.lat, report.start.lng];
-        const endPos = [report.end.lat, report.end.lng];
-        const midPos = [
-          (report.start.lat + report.end.lat) / 2,
-          (report.start.lng + report.end.lng) / 2,
-        ];
+        // Older reports (pre-road-snapping) may only have start/end; fall
+        // back to a straight line between them if `path` isn't present.
+        const path =
+          report.path && report.path.length > 0
+            ? report.path.map((p) => [p.lat, p.lng])
+            : [
+                [report.start.lat, report.start.lng],
+                [report.end.lat, report.end.lng],
+              ];
+        const startPos = path[0];
+        const endPos = path[path.length - 1];
+        const midPos = path[Math.floor(path.length / 2)];
 
         return (
           <Fragment key={report.id}>
             <Polyline
-              positions={[startPos, endPos]}
+              positions={path}
               pathOptions={{
                 color: severity.color,
                 weight: 7,
                 opacity: report.isStale ? 0.35 : 0.85,
                 lineCap: "round",
+                lineJoin: "round",
               }}
             />
             {/* Endpoint markers make the segment's extent easy to grab visually */}
@@ -139,8 +151,9 @@ export default function MapView({
                 fillOpacity: report.isStale ? 0.35 : 0.9,
               }}
             />
-            {/* Invisible larger marker at the midpoint carries the popup so it's
-                easy to tap on touch devices without hitting the thin line exactly */}
+            {/* Larger (mostly transparent) marker at the midpoint carries the
+                popup so it's easy to tap on touch devices without hitting
+                the thin line exactly */}
             <CircleMarker
               center={midPos}
               radius={14}

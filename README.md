@@ -40,9 +40,13 @@ in a `.env` file inside `client/` if needed).
 ## Features implemented
 
 - Two-click segment reporting: click one end of the flooded stretch, then
-  the other. The app draws a line between them and calculates the length
-  (via the haversine formula), so reports convey how far the flooding
-  extends, not just a single point.
+  the other. The app looks up the actual road between those two points
+  (via OSRM's public routing API) and highlights that road geometry, not
+  just a straight line — so the report reflects the real street shape and
+  gives a sense of how far the flooding stretches.
+- Auto-fills the street name field from the matched road, editable by the user
+- Falls back to a straight line between the two points if road-matching
+  fails (offline, no road found, or the match seems like an unrelated detour)
 - Severity levels (passable / ankle-deep / knee-deep / impassable) with
   color-coded segments on the map
 - Description, street name, and reporter name fields
@@ -55,9 +59,13 @@ in a `.env` file inside `client/` if needed).
 
 ## Not implemented (good next steps / talking points for judges)
 
-- Segments are drawn as straight lines between two clicked points, not
-  snapped to the actual road geometry (no OSM road-network/routing data
-  wired in, so a curved road would show as a straight chord)
+- Road-snapping relies on the free public OSRM demo server
+  (router.project-osrm.org) — no API key needed, but it's rate-limited and
+  not meant for heavy/production traffic. A self-hosted OSRM instance or a
+  paid routing API (Mapbox, Google Roads API) would be the production move.
+- OSRM routes for _driving_, so on a one-way street or a road with a
+  divider, the snapped path could differ slightly from the exact lane the
+  user meant.
 - Persistent accounts / auth
 - Push notifications for nearby or route-based flooding
 - Real integration with local disaster-response agencies (currently just

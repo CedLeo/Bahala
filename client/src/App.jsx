@@ -3,6 +3,7 @@ import MapView from "./components/MapView";
 import ReportForm from "./components/ReportForm";
 import Legend from "./components/Legend";
 import { api } from "./api";
+import { getRoadRoute } from "./osrm";
 import "./App.css";
 
 const POLL_INTERVAL_MS = 15000;
@@ -10,15 +11,17 @@ const POLL_INTERVAL_MS = 15000;
 function App() {
   const [reports, setReports] = useState([]);
   // Two-click segment drafting: first click sets draftStart, second click
-  // sets draftEnd and opens the report form. Both are Leaflet LatLng-like
-  // objects ({ lat, lng }).
+  // sets draftEnd and triggers a road-route lookup. Once that resolves,
+  // draftRoute holds the road-snapped path and the report form opens.
   const [draftStart, setDraftStart] = useState(null);
   const [draftEnd, setDraftEnd] = useState(null);
+  const [draftRoute, setDraftRoute] = useState(null);
+  const [routing, setRouting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const formOpen = Boolean(draftStart && draftEnd);
+  const formOpen = Boolean(draftRoute);
 
   const loadReports = useCallback(async () => {
     try {
@@ -46,19 +49,37 @@ function App() {
     loadReports();
   }, [loadReports]);
 
-  function handleMapClick(latlng) {
-    if (formOpen) return; // form is open, ignore further map clicks until resolved
+  async function handleMapClick(latlng) {
+    if (formOpen || routing) return; // busy resolving or form already open
 
     if (!draftStart) {
       setDraftStart(latlng);
-    } else {
-      setDraftEnd(latlng);
+      return;
+    }
+
+    setDraftEnd(latlng);
+    setRouting(true);
+    try {
+      const route = await getRoadRoute(draftStart, latlng);
+      setDraftRoute(route);
+    } catch {
+      // getRoadRoute already falls back internally, but guard against
+      // unexpected throws so a flaky network doesn't strand the user.
+      setDraftRoute({
+        path: [draftStart, latlng],
+        distanceMeters: null,
+        streetName: "",
+        snapped: false,
+      });
+    } finally {
+      setRouting(false);
     }
   }
 
   function resetDraft() {
     setDraftStart(null);
     setDraftEnd(null);
+    setDraftRoute(null);
   }
 
   async function handleSubmitReport(payload) {
@@ -92,6 +113,8 @@ function App() {
   let banner = "Click a point on the map to start marking a flooded stretch.";
   if (draftStart && !draftEnd) {
     banner = "Now click the other end of the flooded stretch.";
+  } else if (routing) {
+    banner = "Finding the road between those points...";
   }
 
   return (
@@ -105,7 +128,7 @@ function App() {
       {!error && (
         <div className="banner banner-info">
           {banner}
-          {draftStart && !draftEnd && (
+          {draftStart && !formOpen && (
             <button type="button" className="banner-link" onClick={resetDraft}>
               Cancel
             </button>
@@ -121,6 +144,7 @@ function App() {
             reports={reports}
             draftStart={draftStart}
             draftEnd={draftEnd}
+            draftPath={draftRoute?.path}
             onMapClick={handleMapClick}
             onConfirm={handleConfirm}
             onDispute={handleDispute}
@@ -132,8 +156,7 @@ function App() {
 
       {formOpen && (
         <ReportForm
-          start={draftStart}
-          end={draftEnd}
+          route={draftRoute}
           onSubmit={handleSubmitReport}
           onCancel={resetDraft}
           submitting={submitting}

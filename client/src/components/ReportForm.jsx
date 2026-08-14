@@ -1,43 +1,23 @@
 import { useState } from "react";
 import { SEVERITY, SEVERITY_ORDER } from "../config";
 
-// Haversine distance in meters, mirrors server/geo.js so the form can show
-// a live length estimate before the report is even submitted.
-function distanceMeters(a, b) {
-  const R = 6371000;
-  const toRad = (deg) => (deg * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLng = toRad(b.lng - a.lng);
-  const x =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(x));
-}
-
 function formatLength(meters) {
+  if (meters == null) return "unknown";
   if (meters >= 1000) return `${(meters / 1000).toFixed(2)} km`;
   return `${Math.round(meters)} m`;
 }
 
-export default function ReportForm({
-  start,
-  end,
-  onSubmit,
-  onCancel,
-  submitting,
-}) {
-  const [streetName, setStreetName] = useState("");
+export default function ReportForm({ route, onSubmit, onCancel, submitting }) {
+  // Pre-fill with the street name OSRM matched, if any - user can still edit it.
+  const [streetName, setStreetName] = useState(route.streetName || "");
   const [severity, setSeverity] = useState("ankle");
   const [description, setDescription] = useState("");
   const [reporterName, setReporterName] = useState("");
 
-  const length = distanceMeters(start, end);
-
   function handleSubmit(e) {
     e.preventDefault();
     onSubmit({
-      start: { lat: start.lat, lng: start.lng },
-      end: { lat: end.lat, lng: end.lng },
+      path: route.path,
       streetName,
       severity,
       description,
@@ -55,7 +35,8 @@ export default function ReportForm({
       <div className="modal">
         <h2 id="report-form-title">Report flooding</h2>
         <p className="modal-subtitle">
-          Flooded stretch: ~{formatLength(length)}
+          Flooded stretch: ~{formatLength(route.distanceMeters)}
+          {!route.snapped && " (straight-line estimate — road match not found)"}
         </p>
 
         <form onSubmit={handleSubmit}>

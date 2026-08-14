@@ -8,7 +8,7 @@ import {
   updateReport,
   deleteReport,
 } from "./db.js";
-import { haversineMeters } from "./geo.js";
+import { pathLengthMeters } from "./geo.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -47,15 +47,27 @@ function isValidPoint(point) {
   );
 }
 
-// POST /api/reports - create a new flood report, defined as a segment
-// between two points (start/end) marking where the flooding stretches.
+const MAX_PATH_POINTS = 500; // guard against oversized payloads
+
+function isValidPath(path) {
+  return (
+    Array.isArray(path) &&
+    path.length >= 2 &&
+    path.length <= MAX_PATH_POINTS &&
+    path.every(isValidPoint)
+  );
+}
+
+// POST /api/reports - create a new flood report. `path` is the road-snapped
+// geometry between the two points the user picked (falls back to a
+// straight 2-point line client-side if road-snapping isn't available).
 app.post("/api/reports", async (req, res) => {
-  const { start, end, streetName, severity, description, reporterName } =
+  const { path, streetName, severity, description, reporterName } =
     req.body || {};
 
-  if (!isValidPoint(start) || !isValidPoint(end)) {
+  if (!isValidPath(path)) {
     return res.status(400).json({
-      error: "start and end must each be { lat, lng } numbers",
+      error: "path must be an array of at least 2 { lat, lng } points",
     });
   }
   if (!SEVERITY_LEVELS.includes(severity)) {
@@ -64,13 +76,15 @@ app.post("/api/reports", async (req, res) => {
     });
   }
 
-  const lengthMeters = haversineMeters(start.lat, start.lng, end.lat, end.lng);
+  const cleanPath = path.map((p) => ({ lat: p.lat, lng: p.lng }));
+  const lengthMeters = pathLengthMeters(cleanPath);
 
   const now = new Date().toISOString();
   const report = {
     id: nanoid(10),
-    start: { lat: start.lat, lng: start.lng },
-    end: { lat: end.lat, lng: end.lng },
+    path: cleanPath,
+    start: cleanPath[0],
+    end: cleanPath[cleanPath.length - 1],
     lengthMeters,
     streetName: (streetName || "").trim().slice(0, 120),
     severity,
